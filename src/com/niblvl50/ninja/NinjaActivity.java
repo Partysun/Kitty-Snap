@@ -1,6 +1,7 @@
 package com.niblvl50.ninja;
 
 import org.anddev.andengine.engine.Engine;
+
 import org.anddev.andengine.engine.camera.Camera;
 import org.anddev.andengine.engine.camera.hud.HUD;
 import org.anddev.andengine.engine.options.EngineOptions;
@@ -13,6 +14,8 @@ import org.anddev.andengine.entity.text.ChangeableText;
 import org.anddev.andengine.entity.util.FPSLogger;
 import org.anddev.andengine.input.touch.TouchEvent;
 import org.anddev.andengine.ui.activity.BaseGameActivity;
+
+import android.content.Intent;
 
 import com.niblvl50.ninja.collisionhandler.CollisionHandler;
 import com.niblvl50.ninja.controller.NinjaController;
@@ -55,7 +58,7 @@ public class NinjaActivity extends BaseGameActivity
 
 	@Override
 	public Scene onLoadScene()
-	{
+	{  
 		makePauseScene();
 		setGameScreenHUD();
 		this.mGameScene = new NinjaScene();
@@ -95,7 +98,9 @@ public class NinjaActivity extends BaseGameActivity
 			@Override
 			public boolean onAreaTouched(final TouchEvent pSceneTouchEvent,
 					final float pTouchAreaLocalX, final float pTouchAreaLocalY) {				
-				//TODO smt
+				Intent settingsActivity = new Intent(getBaseContext(),
+						Preference.class);
+				startActivity(settingsActivity);
 				return true;
 			};
 		};

@@ -11,7 +11,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
+ 		<activity
+        	android:name=".Preference"
+        	android:label="@string/set_preferences">
+		</activity>
     </application>
     
     <uses-permission android:name="android.permission.WAKE_LOCK" />

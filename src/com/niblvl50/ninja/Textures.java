@@ -51,7 +51,7 @@ public class Textures
     	mFontTexture = new Texture(256, 256,
 				TextureOptions.BILINEAR);
 		mFont = new Font(mFontTexture, Typeface.create(Typeface.MONOSPACE,
-				Typeface.BOLD), 16, true, Color.GREEN);
+				Typeface.BOLD), 16, true, Color.BLACK);
 
 		activity.getEngine().getTextureManager().loadTexture(mFontTexture);
 		activity.getEngine().getFontManager().loadFont(mFont);

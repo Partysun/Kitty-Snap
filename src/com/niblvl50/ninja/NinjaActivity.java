@@ -16,6 +16,9 @@ import org.anddev.andengine.input.touch.TouchEvent;
 import org.anddev.andengine.ui.activity.BaseGameActivity;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
+import android.util.Log;
 
 import com.niblvl50.ninja.collisionhandler.CollisionHandler;
 import com.niblvl50.ninja.controller.NinjaController;
@@ -59,6 +62,7 @@ public class NinjaActivity extends BaseGameActivity
 	@Override
 	public Scene onLoadScene()
 	{  
+		getPrefs();
 		makePauseScene();
 		setGameScreenHUD();
 		this.mGameScene = new NinjaScene();
@@ -93,7 +97,7 @@ public class NinjaActivity extends BaseGameActivity
 		hud.getTopLayer().addEntity(shieldText);
 		
 		// Добавляем кнопку для отладки
-		final Sprite upActionSprite = new Sprite(0, WORLD_HEIGHT - Textures.mControlTextureRegion.getHeight(),
+		final Sprite upActionSprite = new Sprite(0, WORLD_HEIGHT/2 - Textures.mControlTextureRegion.getHeight(),
 				Textures.mControlTextureRegion) {
 			@Override
 			public boolean onAreaTouched(final TouchEvent pSceneTouchEvent,
@@ -146,6 +150,7 @@ public class NinjaActivity extends BaseGameActivity
 	public void onCatchArtifactEvent(СatсhArtifactEvent catchEvent) {
 		Score += catchEvent.getArtifactScore();		
 		scoreText.setText("Score: "+Score+"");
+		getPrefs();
 		}
 
 	@EventHandler
@@ -174,7 +179,33 @@ public class NinjaActivity extends BaseGameActivity
 		/* Makes the paused Game look through. */
 		this.mPauseScene.setBackgroundEnabled(false);
 	} 
+	
+	private void getPrefs() {
+		// Get the xml/preferences.xml preferences
+		SharedPreferences prefs = PreferenceManager
+				.getDefaultSharedPreferences(getBaseContext());
+
+		String speedPreference = prefs.getString("artifactSpeed", "50f");
+		String spawnPreference = prefs.getString("artifactSpawnTime", "10");
+		String bonusFreq = prefs.getString("bonusFreq", "10");
+		String enemyFreq = prefs.getString("enemyFreq", "10");
+		String shieldFreq = prefs.getString("shieldFreq", "10");
+
+		try {
+			TempSettingsClass.getInstance().setSpeedofartifact(
+					Float.valueOf(speedPreference));
+			TempSettingsClass.getInstance().setSpawnTime(
+					Integer.parseInt(spawnPreference));
+			TempSettingsClass.getInstance().setBonusFreq(
+					Integer.parseInt(bonusFreq));
+			TempSettingsClass.getInstance().setEnemyFreq(
+					Integer.parseInt(enemyFreq));
+			TempSettingsClass.getInstance().setShieldFreq(
+					Integer.parseInt(shieldFreq));
+		} catch (Exception e) {
+			Log.e("PREFERENCE", e.getMessage());
+		}
+	}
 
 }
-
 

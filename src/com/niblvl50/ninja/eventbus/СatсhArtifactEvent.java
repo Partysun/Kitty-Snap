@@ -18,9 +18,9 @@ public class СatсhArtifactEvent {
 	public int getArtifactScore()
 	{	
 		int type = getArtifactType();
-		if (type == Artifact.TYPES.indexOf("ENEMY"))
+		if (type == Artifact.ENEMY)
 			return -100;
-		if (type == Artifact.TYPES.indexOf("SHIELD"))
+		if (type == Artifact.SHIELD)
 			return 10;
 		return 20;
 	}

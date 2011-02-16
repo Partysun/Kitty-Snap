@@ -1,7 +1,5 @@
 package com.niblvl50.ninja.entities;
 
-import java.util.ArrayList;
-
 import org.anddev.andengine.opengl.texture.region.TiledTextureRegion;
 
 import com.niblvl50.ninja.NinjaActivity;
@@ -19,20 +17,7 @@ public class Artifact extends GameObject {
 	public static final int ENEMY = 2;
 	public static final int SHIELD = 3;
 
-	
-	@SuppressWarnings("serial")
-	public static final ArrayList<String> TYPES = new ArrayList<String>() {
-				{					
-					add("STOP");
-					add("BONUS");
-					add("ENEMY");
-					add("SHIELD");
-					//add("SPEEDHACK");
-				}
-			};
-			
-
-	private int type = TYPES.indexOf("BONUS");
+	private int type = BONUS;
 
 	public Artifact(TiledTextureRegion pTextureRegion) {
 		super(0, 0, 28, 28, pTextureRegion.clone());
@@ -44,12 +29,12 @@ public class Artifact extends GameObject {
 	private void loadAnimationSequences() {
 		final long[] runningDuration = { 100, 100 };
 
-		this.addAnimationSequence(TYPES.indexOf("STOP"), new StopSequence(0));
-		this.addAnimationSequence(TYPES.indexOf("BONUS"), new AnimationSequence(0, 1,
+		this.addAnimationSequence(STOP, new StopSequence(0));
+		this.addAnimationSequence(BONUS, new AnimationSequence(0, 1,
 				runningDuration, true));
-		this.addAnimationSequence(TYPES.indexOf("ENEMY"), new AnimationSequence(2, 3,
+		this.addAnimationSequence(ENEMY, new AnimationSequence(2, 3,
 				runningDuration, true));
-		this.addAnimationSequence(TYPES.indexOf("SHIELD"), new StopSequence(0));
+		this.addAnimationSequence(SHIELD, new StopSequence(0));
 	}
 
 	@Override

@@ -1,5 +1,9 @@
 package com.niblvl50.ninja;
 
+import java.io.IOException;
+
+import org.anddev.andengine.audio.music.Music;
+import org.anddev.andengine.audio.music.MusicFactory;
 import org.anddev.andengine.engine.Engine;
 
 import org.anddev.andengine.engine.camera.Camera;
@@ -11,14 +15,11 @@ import org.anddev.andengine.entity.scene.CameraScene;
 import org.anddev.andengine.entity.scene.Scene;
 import org.anddev.andengine.entity.sprite.Sprite;
 import org.anddev.andengine.entity.text.ChangeableText;
-import org.anddev.andengine.entity.util.FPSLogger;
 import org.anddev.andengine.input.touch.TouchEvent;
 import org.anddev.andengine.ui.activity.BaseGameActivity;
+import org.anddev.andengine.util.Debug;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
-import android.util.Log;
 
 import com.niblvl50.ninja.collisionhandler.CollisionHandler;
 import com.niblvl50.ninja.controller.NinjaController;
@@ -28,32 +29,44 @@ import com.niblvl50.ninja.eventbus.EventHandler;
 import com.niblvl50.ninja.eventbus.СatсhArtifactEvent;
 import com.partysun.cat.pool.ArtifactPool;
 
-public class NinjaActivity extends BaseGameActivity
+public class GameActivity extends BaseGameActivity
 {
 	public static final int WORLD_WIDTH = 400;
 	public static final int WORLD_HEIGHT = 240;
 	public int Score = 0;
 	private ChangeableText scoreText;
-	private ChangeableText lifesText;
-	private ChangeableText shieldText;
 	private CameraScene mPauseScene;
 	private Scene mGameScene; 
+	private Music mMusic;
 	
 	@Override
 	public Engine onLoadEngine()
 	{		
 		Camera camera = new Camera(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
-		EngineOptions options = new EngineOptions(true, ScreenOrientation.LANDSCAPE, new RatioResolutionPolicy(WORLD_WIDTH, WORLD_HEIGHT), camera);
+		EngineOptions options = new EngineOptions(true, ScreenOrientation.LANDSCAPE, new RatioResolutionPolicy(WORLD_WIDTH, WORLD_HEIGHT), camera).setNeedsMusic(true);
 		return new Engine(options);
 	}
 
 	@Override
 	public void onLoadResources()
 	{
+		MusicFactory.setAssetBasePath("music/");
+
+		try {
+			this.mMusic = MusicFactory.createMusicFromAsset(this.mEngine
+					.getMusicManager(), this,
+					"birds.ogg");
+			this.mMusic.setLooping(true);
+		} catch (final IOException e) {
+			Debug.e("Error", e);
+		}
+
+		mMusic.setLooping(true);
 		Textures.load(this);
 		ArtifactPool.getInstance().setArtifactTexture(Textures.artifact);
 		// Allocate and register the collision handler
 		CollisionHandler.instance().reset();
+		TempSettingsClass.getInstance().setContext(getBaseContext());
 		EventBus.clear();
 		EventBus.register(this);
 		this.getEngine().registerUpdateHandler(CollisionHandler.instance());
@@ -81,20 +94,9 @@ public class NinjaActivity extends BaseGameActivity
 	{
 		// Create a hud basically a overlay for the camera
 		final HUD hud = new HUD();
-		final ChangeableText fpsText = new ChangeableText(0, 0, Textures.mFont,
-				"Fps: ?", "Fps: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX".length());
-		hud.getTopLayer().addEntity(fpsText);
-		scoreText = new ChangeableText(0, 20, Textures.mFont,
+		scoreText = new ChangeableText(0, 2, Textures.mFont,
 				"Score: 0", "Score: XXXXXXXXXXXXXXXXXX".length());
 		hud.getTopLayer().addEntity(scoreText);
-		
-		lifesText = new ChangeableText(0, 40, Textures.mFont,
-				"Lifes: 1", "Score: XXXXXXXXXXXXXXXXXX".length());
-		hud.getTopLayer().addEntity(lifesText);
-		
-		shieldText = new ChangeableText(0, 60, Textures.mFont,
-				"Shield: false", "Score: XXXXXXXXXXXXXXXXXX".length());
-		hud.getTopLayer().addEntity(shieldText);
 		
 		// Добавляем кнопку для отладки
 		final Sprite upActionSprite = new Sprite(0, WORLD_HEIGHT/2 - Textures.mControlTextureRegion.getHeight(),
@@ -102,8 +104,9 @@ public class NinjaActivity extends BaseGameActivity
 			@Override
 			public boolean onAreaTouched(final TouchEvent pSceneTouchEvent,
 					final float pTouchAreaLocalX, final float pTouchAreaLocalY) {				
+				getPrefs();
 				Intent settingsActivity = new Intent(getBaseContext(),
-						Preference.class);
+						SplashScreenMyLogo.class);
 				startActivity(settingsActivity);
 				return true;
 			};
@@ -113,23 +116,12 @@ public class NinjaActivity extends BaseGameActivity
 		//
 		
 		this.getEngine().getCamera().setHUD(hud);
-		// Attach the FPSLogger
-		this.getEngine().registerUpdateHandler(new FPSLogger(0.5f) {
-			@Override
-			protected void onLogFPS() {
-				final String fpsString = String.format(
-						"FPS: %.2f (MIN: %.0f ms | MAX: %.0f ms)",
-						this.mFrames / this.mSecondsElapsed,
-						this.mShortestFrame * MILLISECONDSPERSECOND,
-						this.mLongestFrame * MILLISECONDSPERSECOND);
-				fpsText.setText(fpsString);
-			}
-		});	
+			
 	}
 	
 	@Override
 	public void onLoadComplete()
-	{ }
+	{ this.mMusic.play();}
 	
 	@EventHandler
 	public void registerAccelerometerListener(NinjaController controller)
@@ -150,14 +142,13 @@ public class NinjaActivity extends BaseGameActivity
 	public void onCatchArtifactEvent(СatсhArtifactEvent catchEvent) {
 		Score += catchEvent.getArtifactScore();		
 		scoreText.setText("Score: "+Score+"");
-		getPrefs();
+		
 		}
 
 	@EventHandler
 	public void onChangeGameStatus(EventChangeGameStatus gameStatus) {
 		if (gameStatus.getGameState().equals(EventChangeGameStatus.PAUSE)){
-			lifesText.setText("Lifes: "+gameStatus.getNinja().life+"");
-			shieldText.setText("Shield: "+gameStatus.getNinja().isShield()+"");
+	
 			if (gameStatus.getNinja().life<=0){
 				//[Выводим Гейм Овер + reset уровня + кнопку на выход в активити с меню.]
 				this.mGameScene.setChildScene(this.mPauseScene, false, true, true);
@@ -182,29 +173,7 @@ public class NinjaActivity extends BaseGameActivity
 	
 	private void getPrefs() {
 		// Get the xml/preferences.xml preferences
-		SharedPreferences prefs = PreferenceManager
-				.getDefaultSharedPreferences(getBaseContext());
-
-		String speedPreference = prefs.getString("artifactSpeed", "50f");
-		String spawnPreference = prefs.getString("artifactSpawnTime", "10");
-		String bonusFreq = prefs.getString("bonusFreq", "10");
-		String enemyFreq = prefs.getString("enemyFreq", "10");
-		String shieldFreq = prefs.getString("shieldFreq", "10");
-
-		try {
-			TempSettingsClass.getInstance().setSpeedofartifact(
-					Float.valueOf(speedPreference));
-			TempSettingsClass.getInstance().setSpawnTime(
-					Integer.parseInt(spawnPreference));
-			TempSettingsClass.getInstance().setBonusFreq(
-					Integer.parseInt(bonusFreq));
-			TempSettingsClass.getInstance().setEnemyFreq(
-					Integer.parseInt(enemyFreq));
-			TempSettingsClass.getInstance().setShieldFreq(
-					Integer.parseInt(shieldFreq));
-		} catch (Exception e) {
-			Log.e("PREFERENCE", e.getMessage());
-		}
+		TempSettingsClass.getInstance().getPref();
 	}
 
 }

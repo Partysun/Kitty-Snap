@@ -7,8 +7,6 @@ import org.anddev.andengine.entity.sprite.AnimatedSprite;
 import org.anddev.andengine.opengl.texture.region.TiledTextureRegion;
 
 import com.niblvl50.ninja.collisionhandler.ICollidable;
-import com.niblvl50.ninja.controller.IController;
-
 
 public abstract class GameObject extends AnimatedSprite implements ICollidable
 {
@@ -57,11 +55,6 @@ public abstract class GameObject extends AnimatedSprite implements ICollidable
 	public void flipSprite(boolean flip)
 	{
 		this.getTextureRegion().setFlippedHorizontal(flip);
-	}
-	
-	public void attachController(IController controller)
-	{
-		controller.registerGameObject(this);
 	}
 	
 	public void canJump(boolean jump)

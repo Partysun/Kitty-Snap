@@ -1,8 +1,8 @@
 package com.niblvl50.ninja.controller;
 
-import com.niblvl50.ninja.entities.GameObject;
+import com.niblvl50.ninja.entities.RyuHayabusa;
 
 public interface IController
 {
-	public void registerGameObject(GameObject object);
+	public void registerGameObject(RyuHayabusa object);
 }

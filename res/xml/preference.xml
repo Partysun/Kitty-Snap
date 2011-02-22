@@ -23,6 +23,15 @@
                 android:defaultValue="5"
                 android:title="Частота появления артефактов"
                 android:key="artifactSpawnTime" />  
+		 <EditTextPreference
+                android:name="defaultSpeed"
+                android:summary="Введите скорость персонажа"
+                android:defaultValue="150"
+                android:title="Скорость персонажа"
+                android:key="defaultSpeed" />
+            </PreferenceCategory>    
+           <PreferenceCategory
+                android:title="Вероятности появлений артефактов">  
          <EditTextPreference
                 android:name="bonusFreq"
                 android:summary="Введите вероятность появления бонуса"
@@ -38,8 +47,27 @@
          <EditTextPreference
                 android:name="shieldFreq"
                 android:summary="Введите вероятность появления 'Щита'"
-                android:defaultValue="10"
+                android:defaultValue="5"
                 android:title="Частота появления щита"
-                android:key="shieldFreq" />                     
+                android:key="shieldFreq" />   
+         <EditTextPreference
+                android:name="slowFreq"
+                android:summary="Введите вероятность появления 'Песочных часов'"
+                android:defaultValue="5"
+                android:title="Частота появления 'Песочных часов'"
+                android:key="slowFreq" />         
+         <EditTextPreference
+                android:name="speedFreq"
+                android:summary="Введите вероятность появления 'Ботинок'"
+                android:defaultValue="5"
+                android:title="Частота появления 'Ботинок'"
+                android:key="speedFreq" />  
+         <EditTextPreference
+                android:name="romFreq"
+                android:summary="Введите вероятность появления 'Рома'"
+                android:defaultValue="5"
+                android:title="Частота появления 'Рома'"
+                android:key="romFreq" />  
+                                                     
         </PreferenceCategory>
 </PreferenceScreen>

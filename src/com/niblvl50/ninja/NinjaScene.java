@@ -3,6 +3,8 @@ package com.niblvl50.ninja;
 import org.anddev.andengine.entity.scene.Scene;
 import org.anddev.andengine.entity.scene.background.ParallaxBackground;
 import org.anddev.andengine.entity.scene.background.ParallaxBackground.ParallaxEntity;
+import org.anddev.andengine.entity.shape.modifier.ScaleModifier;
+import org.anddev.andengine.entity.shape.modifier.ease.EaseBounceOut;
 import org.anddev.andengine.entity.sprite.Sprite;
 import org.anddev.andengine.input.touch.TouchEvent;
 import org.anddev.andengine.opengl.texture.region.TextureRegion;
@@ -95,8 +97,19 @@ public class NinjaScene extends Scene
 	public void onCatchArtifactEvent(СatсhArtifactEvent catchEvent) {
 		int curArtifactType = catchEvent.getArtifactType(); 
 		
+		if (curArtifactType != Artifact.BONUS && curArtifactType != Artifact.ENEMY)
+			purgeEffect();
+		
 		if (curArtifactType == Artifact.SHIELD){			
 			ninja.setShield();		
+			Textures.artifact.setCurrentTileIndex(6);
+			final Sprite effectSprite = new Sprite(GameActivity.WORLD_WIDTH-40, 5, 32, 32, Textures.artifact);
+			effectSprite.setScale(0);
+			float scaleOut = 1.3f;
+			effectSprite.addShapeModifier(new ScaleModifier(3, 1, scaleOut, EaseBounceOut.getInstance()));
+			//effectSprite.
+			
+			this.getTopLayer().addEntity(effectSprite);
 		}
 		
 		if (curArtifactType == Artifact.ENEMY){			
@@ -106,28 +119,25 @@ public class NinjaScene extends Scene
 				ninja.life -= 1;			
 		}
 		
+		if (curArtifactType == Artifact.SPEEDHACK){			
+			ninja.speed = 100;			
+		}
+		
+		if (curArtifactType == Artifact.SLOWTIME){			
+			TempSettingsClass.getInstance().setSpeedofartifact(20f);		
+		}
+		
+		if (curArtifactType == Artifact.ROM){			
+			ninja.speed = -ninja.speed;			
+		}		
+		
 		EventBus.dispatch(new EventChangeGameStatus(EventChangeGameStatus.PAUSE,this.ninja));
 	}
-		
- 	
-		//case Artifact.TYPES.indexOf("SPEEDHACK"): 
-			//TODO Action
-		//	break;
-		//case Artifact.TYPES.indexOf("SLOWTIME"):
-		//	//TODO Action
-		//	break;
-		//case Artifact.TYPES.indexOf("SWAMP"):
-		//	//TODO Action
-		//	break;
-		//case Artifact.TYPES.indexOf("VOODOO"):
-		//	//TODO Action
-		//	break;
-		//case Artifact.TYPES.indexOf("ROME"):
-		//	//TODO Action
-		//	break;
-		
-		
 	
-	
-	
+	private void purgeEffect()
+	{
+		TempSettingsClass.getInstance().getPref();
+		ninja.killShield();
+		ninja.speed = ninja.DEFAUL_SPEED;		
+	}
 }

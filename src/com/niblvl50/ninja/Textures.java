@@ -16,7 +16,7 @@ import android.graphics.Typeface;
 
 public class Textures
 {
-	public static BuildableTexture buildableTexture;
+	public static BuildableTexture backTexture;
 	public static TiledTextureRegion ryu;
 	public static TiledTextureRegion artifact;
 	public static TextureRegion backgroundLand;
@@ -29,18 +29,20 @@ public class Textures
 	public static TextureRegion mPausedTextureRegion;
 	public static Texture mFontTexture;
 	public static Font mFont;
+	public static BuildableTexture artifactTexture;
 	
 	public static void load(BaseGameActivity activity)
 	{
 		TextureRegionFactory.setAssetBasePath("textures/");
 		
-		buildableTexture = new BuildableTexture(1024, 512, TextureOptions.DEFAULT);
+		backTexture = new BuildableTexture(512, 512, TextureOptions.BILINEAR);
 		
-        ryu = TextureRegionFactory.createTiledFromAsset(buildableTexture, activity, "ryu.png", 4, 3);
-        artifact = TextureRegionFactory.createTiledFromAsset(buildableTexture, activity, "artifacts.png", 2, 2);
-        backgroundLand = TextureRegionFactory.createFromAsset(buildableTexture, activity, "backgroundLand.png");
-        backgroundCloud = TextureRegionFactory.createFromAsset(buildableTexture, activity, "backgroundSky.png");
+        ryu = TextureRegionFactory.createTiledFromAsset(backTexture, activity, "cats.png", 4, 1);       
+        backgroundLand = TextureRegionFactory.createFromAsset(backTexture, activity, "backgroundLand.png");
+        backgroundCloud = TextureRegionFactory.createFromAsset(backTexture, activity, "backgroundSky.png");
         
+        artifactTexture = new BuildableTexture(64, 128, TextureOptions.BILINEAR);
+        artifact = TextureRegionFactory.createTiledFromAsset(artifactTexture, activity, "artifacts.png", 2, 4);
         
         mTexture = new Texture(256, 128, TextureOptions.BILINEAR);
 		mPausedTextureRegion = TextureRegionFactory.createFromAsset(mTexture, activity, "paused.png", 0, 0);
@@ -50,20 +52,20 @@ public class Textures
 		
     	mFontTexture = new Texture(256, 256,
 				TextureOptions.BILINEAR);
-		mFont = new Font(mFontTexture, Typeface.create(Typeface.MONOSPACE,
-				Typeface.BOLD), 16, true, Color.BLACK);
+		mFont = new Font(mFontTexture, Typeface.create(Typeface.DEFAULT_BOLD,
+				Typeface.BOLD), 16, true, Color.RED);
 
 		activity.getEngine().getTextureManager().loadTexture(mFontTexture);
 		activity.getEngine().getFontManager().loadFont(mFont);
         try 
         {
-            buildableTexture.build(new BlackPawnTextureBuilder(1));
+            backTexture.build(new BlackPawnTextureBuilder(1));
+            artifactTexture.build(new BlackPawnTextureBuilder(1));
         }
         catch(final TextureSourcePackingException e)
         {
             activity.finish();
         }
-        activity.getEngine().getTextureManager().loadTexture(mTexture);
-        activity.getEngine().getTextureManager().loadTextures(buildableTexture, bTexture);
+        activity.getEngine().getTextureManager().loadTextures(backTexture, bTexture, artifactTexture, mTexture);
 	}
 }

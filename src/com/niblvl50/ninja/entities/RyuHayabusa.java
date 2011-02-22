@@ -1,11 +1,11 @@
 package com.niblvl50.ninja.entities;
 
-import android.util.Log;
-
-import com.niblvl50.ninja.NinjaActivity;
+import com.niblvl50.ninja.GameActivity;
+import com.niblvl50.ninja.TempSettingsClass;
 import com.niblvl50.ninja.Textures;
 import com.niblvl50.ninja.collisionhandler.CollisionHandler;
 import com.niblvl50.ninja.collisionhandler.ICollidableVisitor;
+import com.niblvl50.ninja.controller.IController;
 
 public class RyuHayabusa extends GameObject
 {
@@ -13,8 +13,10 @@ public class RyuHayabusa extends GameObject
 	public static final int RUNNING = 1;
 	public static final int JUMPING = 2;
 	public static final int KILLING = 3;
+	public int DEFAUL_SPEED = TempSettingsClass.getInstance().getDefaultSpeed();
 	public int life = 1;
 	private boolean isShield = false;
+	public int speed = DEFAUL_SPEED;
 	
 	public RyuHayabusa()
 	{
@@ -28,14 +30,14 @@ public class RyuHayabusa extends GameObject
 
 	private void loadAnimationSequences()
 	{
-		final long[] runningDuration = { 100, 100, 100 };
-		final long[] jumpingDuration = { 100, 100, 100, 100 };
-		final long[] killingDuration = { 100, 100, 100, 100 };
+		final long[] runningDuration = {100, 100, 100, 100 };
+		//final long[] jumpingDuration = { 100, 100, 100, 100 };
+		//final long[] killingDuration = { 100, 100, 100, 100 };
 		
 		this.addAnimationSequence(STOP, new StopSequence(0));
-		this.addAnimationSequence(RUNNING, new AnimationSequence(1, 3, runningDuration, true));
-		this.addAnimationSequence(JUMPING, new AnimationSequence(4, 7, jumpingDuration, true));
-		this.addAnimationSequence(KILLING, new AnimationSequence(8, 11, killingDuration, false));
+		this.addAnimationSequence(RUNNING, new AnimationSequence(0, 3, runningDuration, true));
+		//this.addAnimationSequence(JUMPING, new AnimationSequence(4, 7, jumpingDuration, true));
+		//this.addAnimationSequence(KILLING, new AnimationSequence(8, 11, killingDuration, false));
 	}
 	
 	@Override
@@ -44,8 +46,8 @@ public class RyuHayabusa extends GameObject
 		super.onPositionChanged();
 		
 		if(this.mX + this.getWidth() < 0)
-			this.mX = NinjaActivity.WORLD_WIDTH;
-		else if(this.mX > NinjaActivity.WORLD_WIDTH)
+			this.mX = GameActivity.WORLD_WIDTH;
+		else if(this.mX > GameActivity.WORLD_WIDTH)
 			this.mX = 0 - this.getWidth();
 	}
 
@@ -55,6 +57,11 @@ public class RyuHayabusa extends GameObject
 		visitor.Visit(this);
 	}
 
+	public void attachController(IController controller)
+	{
+		controller.registerGameObject(this);
+	}
+	
 	public void setShield() {
 		this.isShield = true;	
 	}

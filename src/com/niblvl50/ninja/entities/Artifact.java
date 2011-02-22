@@ -2,7 +2,7 @@ package com.niblvl50.ninja.entities;
 
 import org.anddev.andengine.opengl.texture.region.TiledTextureRegion;
 
-import com.niblvl50.ninja.NinjaActivity;
+import com.niblvl50.ninja.GameActivity;
 import com.niblvl50.ninja.collisionhandler.CollisionHandler;
 import com.niblvl50.ninja.collisionhandler.ICollidableVisitor;
 import com.niblvl50.ninja.eventbus.EntitySpawnedEvent;
@@ -16,25 +16,33 @@ public class Artifact extends GameObject {
 	public static final int BONUS = 1;
 	public static final int ENEMY = 2;
 	public static final int SHIELD = 3;
+	public static final int SPEEDHACK = 4;
+	public static final int ROM = 5;
+	public static final int SLOWTIME = 6;
 
 	private int type = BONUS;
+	
+	public static final int WIDTH = 32;
+	public static final int HEIGHT = 32;
 
 	public Artifact(TiledTextureRegion pTextureRegion) {
-		super(0, 0, 28, 28, pTextureRegion.clone());
+		super(0, 0, WIDTH, HEIGHT, pTextureRegion.clone());
 		CollisionHandler.instance().register(this);
 		EventBus.dispatch(new EntitySpawnedEvent(this));
 		this.loadAnimationSequences();		
 	}
 
 	private void loadAnimationSequences() {
-		final long[] runningDuration = { 100, 100 };
+		final long[] runningDuration = { 300, 300 };
 
-		this.addAnimationSequence(STOP, new StopSequence(0));
-		this.addAnimationSequence(BONUS, new AnimationSequence(0, 1,
+		this.addAnimationSequence(ENEMY, new StopSequence(0));
+		this.addAnimationSequence(SHIELD, new AnimationSequence(6, 7,
 				runningDuration, true));
-		this.addAnimationSequence(ENEMY, new AnimationSequence(2, 3,
+		this.addAnimationSequence(SPEEDHACK, new StopSequence(5));
+		this.addAnimationSequence(BONUS, new StopSequence(1));
+		this.addAnimationSequence(ROM, new AnimationSequence(2, 3,
 				runningDuration, true));
-		this.addAnimationSequence(SHIELD, new StopSequence(0));
+		this.addAnimationSequence(SLOWTIME, new StopSequence(4));
 	}
 
 	@Override
@@ -43,7 +51,7 @@ public class Artifact extends GameObject {
 		super.onPositionChanged();
 
 		final float y = this.getY();
-		if (y > NinjaActivity.WORLD_HEIGHT)
+		if (y > GameActivity.WORLD_HEIGHT)
 			ArtifactPool.getInstance().recyclePoolItem(this);
 	}
 

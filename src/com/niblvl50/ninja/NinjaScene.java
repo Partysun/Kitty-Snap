@@ -1,5 +1,6 @@
 package com.niblvl50.ninja;
 
+import org.anddev.andengine.engine.camera.hud.HUD;
 import org.anddev.andengine.entity.scene.Scene;
 import org.anddev.andengine.entity.scene.background.ParallaxBackground;
 import org.anddev.andengine.entity.scene.background.ParallaxBackground.ParallaxEntity;
@@ -26,11 +27,16 @@ public class NinjaScene extends Scene
 	private boolean isIslandGenerate = false;
 	private GameObjectsGenerator ggenerator;
 	private RyuHayabusa ninja = null;
+	private HUD hud;
+	private int entityTopIndex = 0;
 
-	public NinjaScene()
+	public NinjaScene(HUD hud)
 	{
 		super(1);
 		EventBus.register(this);
+		
+		this.hud = hud;
+		entityTopIndex = hud.getTopLayer().getEntityCount();
 		
 		ninja = new RyuHayabusa();
 		ninja.attachController(new NinjaController());
@@ -40,8 +46,7 @@ public class NinjaScene extends Scene
 		mBackground = new ParallaxBackground(1.0f, 1.0f, 1.0f);
 		mBackground.addParallaxEntity(new ParallaxEntity(0.0f, this.createParallaxSprite(0.0f, Textures.backgroundLand)));
 		mBackground.addParallaxEntity(new ParallaxEntity(0.002f, this.createParallaxSprite(0.0f, Textures.backgroundCloud)));
-		//mBackground.addParallaxEntity(new ParallaxEntity(0.0f, this.createParallaxSprite(166.0f, Textures.backgroundGrass)));
-		//mBackground.addParallaxEntity(new ParallaxEntity(0.0f, this.createParallaxSprite(140.0f, Textures.backgroundBushes)));
+		
 		this.setBackground(mBackground);
 		
 		// Создаем генератор Артефактов, которые будут падать на игрока.
@@ -102,42 +107,68 @@ public class NinjaScene extends Scene
 		
 		if (curArtifactType == Artifact.SHIELD){			
 			ninja.setShield();		
-			Textures.artifact.setCurrentTileIndex(6);
-			final Sprite effectSprite = new Sprite(GameActivity.WORLD_WIDTH-40, 5, 32, 32, Textures.artifact);
-			effectSprite.setScale(0);
-			float scaleOut = 1.3f;
-			effectSprite.addShapeModifier(new ScaleModifier(3, 1, scaleOut, EaseBounceOut.getInstance()));
-			//effectSprite.
-			
-			this.getTopLayer().addEntity(effectSprite);
+			setEffectInHUD(6);
 		}
 		
 		if (curArtifactType == Artifact.ENEMY){			
-			if (ninja.isShield())				
+			if (ninja.isShield()){	
+				Textures.artifact.setCurrentTileIndex(6);
+				final Sprite effectSprite = new Sprite(GameActivity.WORLD_WIDTH-40, 5, 32, 32, Textures.artifact);
+				effectSprite.setScale(1.3f);
+				float scaleIn = 1.3f;
+				effectSprite.addShapeModifier(new ScaleModifier(3, scaleIn, 0f, EaseBounceOut.getInstance()));
+				hud.getTopLayer().setEntity(entityTopIndex,effectSprite);
 				ninja.killShield();
+				}
 			else
 				ninja.life -= 1;			
 		}
 		
 		if (curArtifactType == Artifact.SPEEDHACK){			
-			ninja.speed = 100;			
+			ninja.speed = 100;		
+			setEffectInHUD(5);
 		}
 		
 		if (curArtifactType == Artifact.SLOWTIME){			
-			TempSettingsClass.getInstance().setSpeedofartifact(20f);		
+			TempSettingsClass.getInstance().setSpeedofartifact(20f);
+			setEffectInHUD(4);
 		}
 		
 		if (curArtifactType == Artifact.ROM){			
-			ninja.speed = -ninja.speed;			
+			ninja.speed = -ninja.speed;
+			setEffectInHUD(2);
 		}		
 		
 		EventBus.dispatch(new EventChangeGameStatus(EventChangeGameStatus.PAUSE,this.ninja));
 	}
 	
+	private void setEffectInHUD(int intTile) {
+		Textures.artifact.setCurrentTileIndex(intTile);
+		final Sprite effectSprite = new Sprite(GameActivity.WORLD_WIDTH-40, 5, 32, 32, Textures.artifact);
+		effectSprite.setScale(0);
+		float scaleOut = 1.3f;
+		effectSprite.addShapeModifier(new ScaleModifier(3, 1, scaleOut, EaseBounceOut.getInstance()));
+		
+		hud.getTopLayer().setEntity(entityTopIndex, effectSprite);
+	}
+
 	private void purgeEffect()
 	{
 		TempSettingsClass.getInstance().getPref();
 		ninja.killShield();
 		ninja.speed = ninja.DEFAUL_SPEED;		
+	}
+
+	public void wipe() {
+		stopGeneratorObjects();
+		purgeEffect();
+	}
+
+	public void stopGeneratorObjects() {
+		isIslandGenerate = false;			
+	}
+
+	public void startGeneratorObjects() {
+		isIslandGenerate = true;				
 	}
 }

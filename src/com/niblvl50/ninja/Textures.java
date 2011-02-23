@@ -1,6 +1,7 @@
 package com.niblvl50.ninja;
 
 import org.anddev.andengine.opengl.font.Font;
+import org.anddev.andengine.opengl.font.FontFactory;
 import org.anddev.andengine.opengl.texture.BuildableTexture;
 import org.anddev.andengine.opengl.texture.Texture;
 import org.anddev.andengine.opengl.texture.TextureOptions;
@@ -12,7 +13,6 @@ import org.anddev.andengine.opengl.texture.region.TiledTextureRegion;
 import org.anddev.andengine.ui.activity.BaseGameActivity;
 
 import android.graphics.Color;
-import android.graphics.Typeface;
 
 public class Textures
 {
@@ -23,10 +23,10 @@ public class Textures
 	public static TextureRegion backgroundCloud;
 	public static TextureRegion backgroundBushes;
 	public static TextureRegion backgroundGrass;
-	public static Texture bTexture;
-	public static TextureRegion mControlTextureRegion;
 	public static Texture mTexture;
-	public static TextureRegion mPausedTextureRegion;
+	public static TextureRegion mGameOverTextureRegion;
+	public static TextureRegion mPauseTextureRegion;
+	public static TextureRegion mRetryTextureRegion;
 	public static Texture mFontTexture;
 	public static Font mFont;
 	public static BuildableTexture artifactTexture;
@@ -44,16 +44,16 @@ public class Textures
         artifactTexture = new BuildableTexture(64, 128, TextureOptions.BILINEAR);
         artifact = TextureRegionFactory.createTiledFromAsset(artifactTexture, activity, "artifacts.png", 2, 4);
         
-        mTexture = new Texture(256, 128, TextureOptions.BILINEAR);
-		mPausedTextureRegion = TextureRegionFactory.createFromAsset(mTexture, activity, "paused.png", 0, 0);
-
-		bTexture = new Texture(128, 128, TextureOptions.BILINEAR);
-		mControlTextureRegion = TextureRegionFactory.createFromAsset(bTexture, activity, "button1.png", 0, 0);
+        mTexture = new Texture(512, 256, TextureOptions.BILINEAR);
+		mGameOverTextureRegion = TextureRegionFactory.createFromAsset(mTexture, activity, "game_over.png", 0, 0);		
+		mRetryTextureRegion = TextureRegionFactory.createFromAsset(mTexture, activity, "retry.png", 0, 50);
+		mPauseTextureRegion = TextureRegionFactory.createFromAsset(mTexture, activity, "paused.png", 0, 100);
+		
 		
     	mFontTexture = new Texture(256, 256,
 				TextureOptions.BILINEAR);
-		mFont = new Font(mFontTexture, Typeface.create(Typeface.DEFAULT_BOLD,
-				Typeface.BOLD), 16, true, Color.RED);
+    	FontFactory.setAssetBasePath("font/");
+		mFont = FontFactory.createFromAsset(mFontTexture, activity, "snap.ttf", 20, true, Color.DKGRAY);
 
 		activity.getEngine().getTextureManager().loadTexture(mFontTexture);
 		activity.getEngine().getFontManager().loadFont(mFont);
@@ -66,6 +66,6 @@ public class Textures
         {
             activity.finish();
         }
-        activity.getEngine().getTextureManager().loadTextures(backTexture, bTexture, artifactTexture, mTexture);
+        activity.getEngine().getTextureManager().loadTextures(backTexture, artifactTexture, mTexture);
 	}
 }

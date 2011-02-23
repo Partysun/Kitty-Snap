@@ -34,6 +34,6 @@ public class SplashScreenAndEngine extends BaseSplashActivity {
 
     @Override
     protected Class<? extends Activity> getFollowUpActivity() {
-        return GameActivity.class;
+        return MenuActivity.class;
     }
 }

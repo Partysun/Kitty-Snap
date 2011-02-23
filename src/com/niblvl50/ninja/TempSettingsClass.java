@@ -26,6 +26,8 @@ public class TempSettingsClass {
 	private int speedFrequency = 5;
 	// Скорость персонажа
 	private int defaultSpeed = 150;
+	// Sound 
+	private boolean isSound = true;
 
 	public static TempSettingsClass getInstance() {
 		if(tempSettingsClass == null)
@@ -124,7 +126,7 @@ public class TempSettingsClass {
 		SharedPreferences prefs = PreferenceManager
 				.getDefaultSharedPreferences(this.context);
 
-		String speedPreference = prefs.getString("artifactSpeed", "50f");
+		String speedPreference = prefs.getString("artifactSpeed", "50");
 		String spawnPreference = prefs.getString("artifactSpawnTime", "10");
 		String bonusFreq = prefs.getString("bonusFreq", "10");
 		String enemyFreq = prefs.getString("enemyFreq", "10");
@@ -133,6 +135,8 @@ public class TempSettingsClass {
 		String slowFreq = prefs.getString("slowFreq", "5");
 		String speedFreq = prefs.getString("speedFreq", "5");
 		String defaultSpeed = prefs.getString("defaultSpeed", "150");
+		
+		boolean isSound = prefs.getBoolean("soundPref", true);
 
 		try {
 			this.setSpeedofartifact(Float.valueOf(speedPreference));
@@ -144,6 +148,7 @@ public class TempSettingsClass {
 			this.setRomFreq(Integer.parseInt(romFreq));
 			this.setSpeedFreq(Integer.parseInt(speedFreq));
 			this.setDefaultSpeed(Integer.parseInt(defaultSpeed));
+			this.setSound(isSound);
 		} catch (Exception e) {
 			Log.e("PREFERENCE", e.getMessage());
 		}
@@ -161,6 +166,20 @@ public class TempSettingsClass {
 	 */
 	public int getDefaultSpeed() {
 		return defaultSpeed;
+	}
+
+	/**
+	 * @param isSound the isSound to set
+	 */
+	public void setSound(boolean isSound) {
+		this.isSound = isSound;
+	}
+
+	/**
+	 * @return the isSound
+	 */
+	public boolean isSound() {
+		return isSound;
 	}
 
 

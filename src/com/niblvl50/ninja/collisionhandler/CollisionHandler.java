@@ -77,7 +77,9 @@ public class CollisionHandler implements IUpdateHandler
 	@Override
 	public void reset()
 	{
-		// TODO Auto-generated method stub
+		collidableObjects.clear();
+		removeObjects.clear();
+		instance= null;
 	}
 
 }

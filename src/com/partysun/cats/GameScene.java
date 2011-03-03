@@ -1,5 +1,8 @@
 package com.partysun.cats;
 
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+
 import org.anddev.andengine.engine.camera.hud.HUD;
 import org.anddev.andengine.entity.scene.Scene;
 import org.anddev.andengine.entity.scene.background.ParallaxBackground;
@@ -10,10 +13,15 @@ import org.anddev.andengine.entity.sprite.TiledSprite;
 import org.anddev.andengine.input.touch.TouchEvent;
 import org.anddev.andengine.opengl.texture.region.TextureRegion;
 import org.anddev.andengine.util.modifier.ease.EaseBounceOut;
+import org.xml.sax.InputSource;
+import org.xml.sax.XMLReader;
+
+import android.util.Log;
 
 import com.partysun.cats.controller.NinjaController;
 import com.partysun.cats.entities.Artifact;
 import com.partysun.cats.entities.GameObjectsGenerator;
+import com.partysun.cats.entities.LevelHandler;
 import com.partysun.cats.entities.RyuHayabusa;
 import com.partysun.cats.eventbus.EntitySpawnedEvent;
 import com.partysun.cats.eventbus.EventBus;
@@ -31,10 +39,28 @@ public class GameScene extends Scene
 	private HUD hud;
 	private int entityTopIndex = 0;
 
-	public GameScene(HUD hud)
+	public GameScene(HUD hud, GameActivity activity)
 	{
 		super(1);
 		EventBus.register(this);
+		
+		// Создаем генератор Артефактов, которые будут падать на игрока.
+		ggenerator = new GameObjectsGenerator();
+		
+		try {
+			SAXParserFactory spf = SAXParserFactory.newInstance();
+			SAXParser sp = spf.newSAXParser();
+			XMLReader xr = sp.getXMLReader();
+
+			LevelHandler myXMLHandler = new LevelHandler();
+			xr.setContentHandler(myXMLHandler);
+			xr.parse(new InputSource(activity.getResources().openRawResource(R.raw.level1)));
+			
+		} catch (Exception e) {
+			Log.d("COL", "XML Pasing Excpetion = " + e);
+		}
+		ggenerator.initWaves(LevelHandler.getWaveList());
+	
 		
 		this.hud = hud;
 		entityTopIndex = hud.getTopLayer().getEntityCount();
@@ -49,9 +75,7 @@ public class GameScene extends Scene
 		mBackground.addParallaxEntity(new ParallaxEntity(0.002f, this.createParallaxSprite(0.0f, Textures.backgroundCloud)));
 		
 		this.setBackground(mBackground);
-		
-		// Создаем генератор Артефактов, которые будут падать на игрока.
-		ggenerator = new GameObjectsGenerator();
+				
 		// Состояние работы генератора.
 		isIslandGenerate = true;
 	}

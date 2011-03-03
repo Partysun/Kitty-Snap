@@ -102,7 +102,7 @@ public class GameActivity extends BaseGameActivity
 		TempSettingsClass.getInstance().getPref();
 		if (!TempSettingsClass.getInstance().isSound())
 			mMusic.setVolume(0f);
-		this.mGameScene = new GameScene(setGameScreenHUD());
+		this.mGameScene = new GameScene(setGameScreenHUD(), this);
 		return mGameScene;
 	}
 	

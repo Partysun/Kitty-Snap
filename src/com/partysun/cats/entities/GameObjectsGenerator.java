@@ -1,17 +1,22 @@
 package com.partysun.cats.entities;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 
 import org.anddev.andengine.util.MathUtils;
 
-import com.partysun.cats.GameActivity;
+import android.util.Log;
+
 import com.partysun.cats.TempSettingsClass;
 import com.partysun.cats.pool.ArtifactPool;
 
 public class GameObjectsGenerator {
 
 	private long spawnArtifactTimer = 0;
+	private long spawnLineTimer = 0;
+	private int curWaveLine = 0;
+	private Wave curWave = null;
 	private float delayArtifactSpawn = 0.0f;
 	private long timer = 0;
 	// Скорость падения артефактов.
@@ -34,6 +39,8 @@ public class GameObjectsGenerator {
 	private boolean LINEOFDEATH =false;
 	private boolean CUSTOMRANDOM =true;
 	private long count = 0;
+	
+	private ArrayList<Wave> waves = new ArrayList<Wave>();
 		
 	public GameObjectsGenerator() {
 		super();
@@ -44,74 +51,55 @@ public class GameObjectsGenerator {
 		speed = TempSettingsClass.getInstance().getSpeedofartifact();
 		spawntime = TempSettingsClass.getInstance().getSpeedofspwantime();	
 		
-		
-		long start = System.currentTimeMillis() - timer;
-		if (start> 1000)
-		{
-			if (!LINEOFDEATH && !CUSTOMRANDOM){
-				int dice = MathUtils.random(0, 100);
-			if (dice >= 0 && dice < 5) {
-				LINEOFDEATH = true;
-			} 
-			if (dice >= 5 && dice < 100) {
-				CUSTOMRANDOM = true;
-				
-			}
-			count = System.currentTimeMillis();
-			}
-			
-			timer = System.currentTimeMillis();
-		}
-		
-		if (CUSTOMRANDOM)
-		{
-			if (count+10000 > System.currentTimeMillis())
-				CUSTOMRANDOM =false;
-			long fireValue = System.currentTimeMillis() - spawnArtifactTimer;
-			if (fireValue > delayArtifactSpawn * 100 + spawntime) {
-				Artifact pArtifact = ArtifactPool.getInstance()
+		//long fireValue = System.currentTimeMillis() - spawnArtifactTimer;
+		//	if (fireValue > delayArtifactSpawn * 200 + spawntime) {
+				/*Artifact pArtifact = ArtifactPool.getInstance()
 						.obtainPoolItem();
 				pArtifact.setPosition(MathUtils.random(0,
 						GameActivity.WORLD_WIDTH - pArtifact.getWidth()),
 						-pArtifact.getHeight());
 				pArtifact.setVelocityY(speed);
-				pArtifact.setArtifactType(getRandomArtifactType());
-				spawnArtifactTimer = System.currentTimeMillis();
-				this.delayArtifactSpawn = findIslandSpawnDelay();
-			}
-		}
-		
-		if (LINEOFDEATH)
-		{
-			if (count+6000 > System.currentTimeMillis())
-				lineOfDeath(true,0);			
-		}
-		if (count==0)
-		count = System.currentTimeMillis();
-		
+				pArtifact.setArtifactType(getRandomArtifactType());*/
+		if (waves.size()>0)		
+		if (curWave == null)
+				curWave = waves.get(MathUtils.random(0, waves.size()-1));
+		if (createWave())
+				curWave = null;
+				
+				
+			//	spawnArtifactTimer = System.currentTimeMillis();
+			//	this.delayArtifactSpawn = findIslandSpawnDelay();
+			//}
 	}
 	
-	/*
-	 * Создает линию смерти - линия смертельных бонусов с двумя пропусками,
-	 *  в которых могут стоять бонусы либо они могут быть пустыми.
+
+	/**
+	 * Создает волну на экране.
+	 * Возвращает true - если волна закончилась и false - если еще нет.
+	 * @param wave
 	 */
-	private void lineOfDeath(boolean emptyLine, int typeBonus)
+	private boolean createWave()
 	{
-		int countElements = 10;
-		int freePlace = MathUtils.random(0,countElements);
-		for(int i=0;i<=countElements;i++)
-		{
-			if (!emptyLine) {
-				if (i == freePlace && i == freePlace + 1) {
-					createArtifact(i * (Artifact.WIDTH + 6), -Artifact.HEIGHT,
-							Artifact.ROM);
-				}
-			} else {
-				continue;
-			}				
-			createArtifact(i*(Artifact.WIDTH+6),-Artifact.HEIGHT, typeBonus);
+		long spawnLineValue = System.currentTimeMillis() - spawnLineTimer;
+		if (spawnLineValue > curWave.getDelayLine(curWaveLine) ) {
+			//Log.d("COL", curWave.size() + " " + curWaveLine);
+			int[] line = curWave.getLine(curWaveLine); 
+			for(int i=0;i<line.length;i++)
+			{
+				if (line[i] == 0)
+					continue;
+				createArtifact(i * (Artifact.WIDTH + 6), -Artifact.HEIGHT,
+						line[i]);
+			}
+			spawnLineTimer = System.currentTimeMillis();
+			++curWaveLine;
+			if (curWaveLine==curWave.size())
+			{
+				curWaveLine = 0;
+				return true;
+			}
 		}
-		LINEOFDEATH = false;
+		return false;
 	}
 	
 	/**
@@ -164,6 +152,59 @@ public class GameObjectsGenerator {
 		float pause = MathUtils.random(0,2);	
 		return pause;
 		}
+	
+	/**
+	 * Создаем волны в коде.
+	 * Потом можно будет сделать загрузку волн из файла.
+	 * @param arrayList 
+	 */
+	public void initWaves(ArrayList<Wave> arrayList)
+	{
+		waves = arrayList;
+	/*	String temp = "";
+		
+		for(int i=0;i<arrayList.size();i++){
+			temp += (i+1)+". "+i+" "+((Wave)arrayList.get(i))+"\n";
+		}
+		Log.d("COL", temp+"");
+		
+		int[] line = new int[11];
+		line[0] = Artifact.STOP;
+		line[1] = Artifact.STOP;
+		line[2] = Artifact.BONUS;
+		line[3] = Artifact.BONUS;
+		line[4] = Artifact.STOP;
+		line[5] = Artifact.STOP;
+		line[6] = Artifact.BONUS;
+		line[7] = Artifact.BONUS;
+		line[8] = Artifact.STOP;
+		line[9] = Artifact.BONUS;
+		line[10] = Artifact.STOP;
+		
+		int[] line2 = new int[11];
+		line2[0] = Artifact.STOP;
+		line2[1] = Artifact.STOP;
+		line2[2] = Artifact.STOP;
+		line2[3] = Artifact.STOP;
+		line2[4] = Artifact.BONUS;
+		line2[5] = Artifact.SHIELD;
+		line2[6] = Artifact.STOP;
+		line2[7] = Artifact.STOP;
+		line2[8] = Artifact.STOP;
+		line2[9] = Artifact.STOP;
+		line2[10] = Artifact.STOP;
+		
+		ArrayList<int[]> lines = new ArrayList<int[]>();
+		lines.add(line);
+		lines.add(line2);
+		lines.add(line);
+		lines.add(line2);
+		
+		Wave simpleWave = new Wave(lines);
+		
+		//Log.d("COL", simpleWave.display()+"");
+		waves.add(simpleWave);*/
+	}
 	
 	/*private boolean dice(int f)
 	{
